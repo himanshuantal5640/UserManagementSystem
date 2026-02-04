@@ -1,4 +1,5 @@
 const app = require('./app.js');
-app.listen(3000,()=>{
-    console.log("https://localhost:3000");
+const PORT = 3000 || process.env.PORT;
+app.listen(PORT,()=>{
+    console.log(`https://localhost:${PORT}`);
 })
