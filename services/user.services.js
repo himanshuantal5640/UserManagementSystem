@@ -1,60 +1,43 @@
 const { users } = require("../data/users");
 
-// DELETE
-const deleteUserService = (id) => {
-  const index = users.findIndex(u => u.id === id);
-  if (index === -1) return false;
-
-  users.splice(index, 1);
-  return true;
-};
-
-// CREATE
-const createUserService = (name, email) => {
-  if (!name || !email) {
-    return { error: "Name and Email are required" };
-  }
-
-  const exists = users.some(u => u.email === email);
-  if (exists) {
-    return { error: "Email already exists" };
-  }
-
+// CREATE USER
+const createUser = (name, email) => {
   const newUser = {
     id: Date.now().toString(),
     name,
-    email
+    email,
   };
 
   users.push(newUser);
   return newUser;
 };
 
-// GET BY ID
-const getUserByIdService = (id) => {
-  if (!id) return null;
+// DELETE USER
+const deleteUserService = (id) => {
+  const index = users.findIndex((u) => u.id === id);
 
-  const user = users.find(u => u.id === id);
-  return user || null;
-};
-
-// UPDATE (PUT/PATCH)
-const updateUserService = (id, name, email) => {
-  const user = users.find(u => u.id === id);
-
-  if (!user) {
-    return { error: "User not found" };
+  if (index === -1) {
+    return false;
   }
 
-  if (name) user.name = name;
-  if (email) user.email = email;
+  users.splice(index, 1);
+  return true;
+};
 
-  return user;
+// UPDATE USER
+const updateUserService = (id, name, email) => {
+  const index = users.findIndex((u) => u.id === id);
+
+  if (index === -1) return null;   // important fix
+
+  if (name) users[index].name = name;
+  if (email) users[index].email = email;
+
+  return users[index];  // better: return updated user only
 };
 
 module.exports = {
+  createUser,
   deleteUserService,
-  createUserService,
-  getUserByIdService,
-  updateUserService
+  updateUserService,
 };

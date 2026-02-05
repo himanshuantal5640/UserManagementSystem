@@ -1,124 +1,112 @@
-const {users} = require("../data/users.js")
+const { users } = require("../data/users");
+const {
+  createUser: createUserService,
+  deleteUserService,
+  updateUserService,
+} = require("../service/user.service");
 
-const getUsers = (req,res)=>{
-  const {token} = req.headers;
-  console.log(token);
-    res.status(200).json({
-        success:true,
-        count: users.length,
-        data : users
-    })
-}
-const createUser = (req,res)=>{
-    try{
-        const {name,email} = req.body;
-        //validation
-        // if(!name || !email){
-        //     return res.status(400).json({
-        //         success:false,
-        //         message: "Name and Email are required"
-        //     })
-        // }
-        const newUser = {
-            id: Date.now().toString(),
-            name,
-            email
-        }
-        users.push(newUser);
-        res.status(201).json({
-            success:true,
-            data: newUser
-        });
-    } catch(err){
-        res.status(500).json({
-            success:false,
-            message: err.message
-        })
-    }
+// GET ALL USERS
+const getUser = (req, res) => {
+  res.status(200).json({
+    success: true,
+    count: users.length,
+    data: users,
+  });
 };
 
-const updateUser = (req, res) => {
+// GET USER BY ID
+const getUserById = (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, email } = req.body;
-
-    const user = users.find(u => u.id === id);
+    const { id } = req.body;
+    const user = users.find((user) => user.id === id);
+    console.log(id);
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-    if (name) user.name = name;
-    if (email) user.email = email;
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      data: user
+      data: user,
     });
-  } catch (err) {
-    return res.status(500).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: err.message
+      message: error.message,
     });
   }
 };
 
+// CREATE USER
+const createUser = (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const newUser = createUserService(name, email);
+
+    res.status(201).json({
+      success: true,
+      data: newUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// UPDATE USER
+const updateUser = (req, res) => {
+  try {
+    const { id, name, email } = req.body;
+
+    const updatedUser = updateUserService(id, name, email);
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// DELETE USER
 const deleteUser = (req, res) => {
   try {
     const { id } = req.params;
 
-    const index = users.findIndex(u => u.id === id);
+    const isDeleted = deleteUserService(id);
 
-    if (index === -1) {
+    if (!isDeleted) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-    const deletedUser = users.splice(index, 1);
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      data: deletedUser[0]
+      message: "User deleted successfully",
     });
-  } catch (err) {
-    return res.status(500).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: err.message
+      message: error.message,
     });
   }
 };
 
-const getUserId = (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const user = users.find(u => u.id === id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: user
-    });
-
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
+module.exports = {
+  getUser,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
 };
-
-
-
-module.exports = {getUsers, createUser,updateUser,deleteUser,getUserId}
