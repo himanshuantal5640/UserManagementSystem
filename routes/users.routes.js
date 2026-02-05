@@ -5,9 +5,9 @@ const {
   createUser,
   updateUser,
   deleteUser
-} = require("../controllers/user.controller.js");
+} = require("../controllers/users.controller.js");
 
-const { checkAuth, validateUserId, validateZod } = require("../middlewares/auth.js");
+const { checkAuth, validateUserId, validateZod } = require("../middleware/auth.js");
 const { validateCreateUserDTO } = require("../dtos/user.dto.js");
 const { createUserSchema, updateUserSchema } = require("../dtos/user.zod.js");
 

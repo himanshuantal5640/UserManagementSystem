@@ -1,5 +1,5 @@
 const { users } = require("../data/users.js");
-const { createUserService } = require("../services/user.service.js");
+const { createUserService } = require("../services/user.services.js");
 
 const getUsers = (req, res) => {
   const { token } = req.headers;
