@@ -1,13 +1,39 @@
-const validateCreateUserDTO = (req,res,next)=>{
-    console.log("Using DTO to check data validity")
-    const {name,email} = req.body;
-    if(!name ||  !email){
-        return res.status(400).json({
-            success: false,
-            message:"Name and email is required "
-        });
-    }
-    next();
+const validateCreateUserDTO = (req, res, next) => {
+  console.log("USING DTO TO CHECK DATA VALIDATION");
+
+  const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({
+      success: false,
+      message: "Name and email are required"
+    });
+  }
+
+  next();
 };
 
-module.exports = {validateCreateUserDTO}
+const updateUserDTO = (req, res, next) => {
+  const { name, email } = req.body;
+
+  if (!name && !email) {
+    return res.status(400).json({
+      success: false,
+      message: "At least one field (name or email) is required"
+    });
+  }
+
+  if (email && !email.includes("@")) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email format"
+    });
+  }
+
+  next();
+};
+
+module.exports = {
+  validateCreateUserDTO,
+  updateUserDTO
+};

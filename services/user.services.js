@@ -1,20 +1,7 @@
-const { users } = require("../data/users");
+const { users } = require("../data/users.js");
 
-// CREATE USER
-const createUser = (name, email) => {
-  const newUser = {
-    id: Date.now().toString(),
-    name,
-    email,
-  };
-
-  users.push(newUser);
-  return newUser;
-};
-
-// DELETE USER
 const deleteUserService = (id) => {
-  const index = users.findIndex((u) => u.id === id);
+  const index = users.findIndex(u => u.id === id);
 
   if (index === -1) {
     return false;
@@ -24,20 +11,23 @@ const deleteUserService = (id) => {
   return true;
 };
 
-// UPDATE USER
-const updateUserService = (id, name, email) => {
-  const index = users.findIndex((u) => u.id === id);
+const createUserService = (email, name) => {
+  console.log("processsing data in service");
 
-  if (index === -1) return null;   // important fix
+  const newUser = {
+    id: Date.now().toString(),
+    email: email,
+    name: name,
+  };
 
-  if (name) users[index].name = name;
-  if (email) users[index].email = email;
-
-  return users[index];  // better: return updated user only
+  users.push(newUser);
+  return newUser;
 };
 
+let user = createUserService("aniket", "ajsah2@gmail.com");
+console.log("users detail pushing ", user);
+
 module.exports = {
-  createUser,
   deleteUserService,
-  updateUserService,
+  createUserService
 };
