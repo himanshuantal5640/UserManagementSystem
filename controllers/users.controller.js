@@ -1,6 +1,8 @@
 const {users} = require("../data/users.js")
 
 const getUsers = (req,res)=>{
+  const {token} = req.headers;
+  console.log(token);
     res.status(200).json({
         success:true,
         count: users.length,
@@ -11,12 +13,12 @@ const createUser = (req,res)=>{
     try{
         const {name,email} = req.body;
         //validation
-        if(!name || !email){
-            return res.status(400).json({
-                success:false,
-                message: "Name and Email are required"
-            })
-        }
+        // if(!name || !email){
+        //     return res.status(400).json({
+        //         success:false,
+        //         message: "Name and Email are required"
+        //     })
+        // }
         const newUser = {
             id: Date.now().toString(),
             name,
@@ -91,5 +93,32 @@ const deleteUser = (req, res) => {
   }
 };
 
+const getUserId = (req, res) => {
+  try {
+    const { id } = req.params;
 
-module.exports = {getUsers, createUser,updateUser,deleteUser}
+    const user = users.find(u => u.id === id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+
+
+module.exports = {getUsers, createUser,updateUser,deleteUser,getUserId}
