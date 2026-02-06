@@ -1,33 +1,77 @@
-const { users } = require("../data/users.js");
+const { user: User } = require("../models/users.js");
 
-const deleteUserService = (id) => {
-  const index = users.findIndex(u => u.id === id);
-
-  if (index === -1) {
-    return false;
-  }
-
-  users.splice(index, 1);
-  return true;
+const getUsersService = async () => {
+  return User.find();
 };
 
-const createUserService = (email, name) => {
-  console.log("processsing data in service");
-
-  const newUser = {
-    id: Date.now().toString(),
-    email: email,
-    name: name,
-  };
-
-  users.push(newUser);
-  return newUser;
+const getUserByIdService = async (id) => {
+  return User.findById(id);
 };
 
-let user = createUserService("aniket", "ajsah2@gmail.com");
-console.log("users detail pushing ", user);
+const getUserByActiveService = async () => {
+  return User.find({ isActive: true });
+};
+
+const createUser = async (name, email, password, role, isActive) => {
+  const newUser = new User({
+    name,
+    email,
+    password,
+    role,
+    isActive,
+  });
+
+  return newUser.save();
+};
+
+const deleteUserService = async (id) => {
+  const deletedUser = await User.findByIdAndDelete(id);
+  return deletedUser !== null;
+};
+
+const updateUserService = async (
+  id,
+  name,
+  email,
+  password,
+  role,
+  isActive
+) => {
+  const updatePayload = {};
+  if (name) updatePayload.name = name;
+  if (email) updatePayload.email = email;
+  if (password) updatePayload.password = password;
+  if (role) updatePayload.role = role;
+  if (isActive !== undefined) updatePayload.isActive = isActive;
+
+  return User.findByIdAndUpdate(id, updatePayload, {
+    new: true,
+    runValidators: true,
+  });
+};
+
+const updateDetailsByEmailService = async (email, password) => {
+  const updatePayload = {};
+  if (password) updatePayload.password = password;
+
+  return User.findOneAndUpdate({ email: email }, updatePayload, {
+    new: true,
+    runValidators: true,
+  });
+};
+
+const deleteByEmailService = async (email) => {
+  const deletedUser = await User.findOneAndDelete({ email: email });
+  return deletedUser !== null;
+};
 
 module.exports = {
+  getUsersService,
+  getUserByIdService,
+  getUserByActiveService,
+  createUser,
   deleteUserService,
-  createUserService
+  updateUserService,
+  updateDetailsByEmailService,
+  deleteByEmailService,
 };

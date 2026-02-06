@@ -1,52 +1,68 @@
 let success = true;
 
 const checkAuth = (req, res, next) => {
-  const body = req.body;
-  console.log("body");
-  const { authorization } = req.body;
-
   if (success) {
-    console.log("AUTH CHECKED");
+    console.log("Auth Checked");
     next();
   } else {
-    console.log("AUTH FAILED");
-    return res.status(400).json({
-      message: "AUTH FAILED"
-    });
+    console.log("Failed Checked");
   }
 };
 
-const validateUserId = (req, res, next) => {
-  console.log("Validating users");
-  const { id } = req.params;
+const validateUserById = (req, res, next) => {
+  const { id } = req.body;
 
   if (!id || id.length < 5) {
     return res.status(400).json({
       success: false,
-      message: "Invalid user ID"
+      message: "Inavlid User ID",
     });
   }
-
   next();
 };
 
-const validateZod = (schema) => (req, res, next) => {
-  const result = schema.safeParse(req.body);
-  console.log("result errors", result);
+const validateUserId = (req, res, next) => {
+  const id = req.body.id || req.params.id;
 
-  if (!result.success) {
+  if (!id || id.length < 5) {
     return res.status(400).json({
       success: false,
-      errors: result.error.message
+      message: "Inavlid User ID",
     });
   }
-
-  req.body = result.data; // sanitized data
   next();
+};
+
+const validateUser = (req, res, next) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Name, email and password are required",
+    });
+  }
+  next();
+};
+
+const tokenVerify = (req, res, next) => {
+  const { token } = req.headers;
+
+  if (token === "69609650") {
+    console.log("Auth Successful");
+    next();
+  } else {
+    res.status(401).json({
+      success: false,
+      message: "Unauthorized Access",
+    });
+  }
 };
 
 module.exports = {
   checkAuth,
+  validateUserById,
   validateUserId,
-  validateZod
+  validateUser,
+  tokenVerify,
 };

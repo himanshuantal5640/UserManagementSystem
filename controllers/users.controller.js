@@ -1,87 +1,208 @@
-const { users } = require("../data/users.js");
-const { createUserService } = require("../services/user.services.js");
+const {
+  getUsersService,
+  getUserByIdService,
+  getUserByActiveService,
+  updateDetailsByEmailService,
+  deleteByEmailService,
+  createUser: createUserService,
+  deleteUserService,
+  updateUserService,
+} = require("../services/user.services.js");
 
-const getUsers = (req, res) => {
-  const { token } = req.headers;
-  console.log("req", req);
-  console.log("token", token);
-
-  res.status(200).json({
-    success: true,
-    count: users.length,
-    data: users
-  });
+const getUser = async (req, res) => {
+  try {
+    const users = await getUsersService();
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
-const updateUser = (req, res) => {
+const getUserById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, email } = req.body;
-
-    const user = users.find(u => u.id === id);
+    const { id } = req.body;
+    const user = await getUserByIdService(id);
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
-
-    if (name) user.name = name;
-    if (email) user.email = email;
 
     res.status(200).json({
       success: true,
-      data: user
+      data: user,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
-const deleteUser = (req, res) => {
+const getUserByActive = async (req, res) => {
   try {
-    const { id } = req.params;
+    const activeUsers = await getUserByActiveService();
+    res.status(200).json({
+      success: true,
+      count: activeUsers.length,
+      data: activeUsers,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-    const index = users.findIndex(u => u.id === id);
+const createUser = async (req, res) => {
+  try {
+    const { name, email, password, role, isActive } = req.body;
+    const newUser = await createUserService(name, email, password, role, isActive);
 
-    if (index === -1) {
+    res.status(201).json({
+      success: true,
+      data: newUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const { id, name, email, password, role, isActive } = req.body;
+
+    const updatedUser = await updateUserService(id, name, email, password, role, isActive);
+
+    if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-    users.splice(index, 1);
-
-    res.status(204).send();
-
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
-const createUser = (req, res) => {
-  const { email, name } = req.body;
+const updateDetailsByEmail = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  const userBody = createUserService(name, email);
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
 
-  res.status(201).json({
-    success: true,
-    data: userBody
-  });
+    const updatedUser = await updateDetailsByEmailService(email, password);
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const isDeleted = await deleteUserService(id);
+
+    if (!isDeleted) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteByEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const isDeleted = await deleteByEmailService(email);
+
+    if (!isDeleted) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 module.exports = {
-  getUsers,
+  getUser,
+  getUserById,
+  getUserByActive,
+  createUser,
   updateUser,
+  updateDetailsByEmail,
   deleteUser,
-  createUser
+  deleteByEmail,
 };
